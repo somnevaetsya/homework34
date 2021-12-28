@@ -1,0 +1,65 @@
+.container {
+    padding: 30px 15px 20px;
+}
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.questions{
+    box-shadow: 0 0 10px rgb(0 0 0 / 75%);
+    margin: 30px;
+    padding: 20px;
+    border: 3px solid gray;
+    border-radius: 10px;
+}
+
+.avatar{
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+    border-radius: 50%;
+}
+
+.search{
+    width: 500px;
+}
+
+.navbar-brand{
+    font-size: 40px;
+}
+
+.person_info{
+    margin-top:16px;
+}
+
+.search_button{
+    width: 700px;
+    margin-right: 500px;
+}
+
+.person_container{
+    width: 350px;
+}
+
+.page-link{
+    color: black;
+}
+
+
+.one_que{
+    box-shadow: 0 0 10px rgb(0 0 0 / 25%);
+    margin: 0 30px 30px 30px;
+    padding: 20px;
+    border-bottom: 5px solid gray;
+    border-radius: 10px;
+    font-size: large;
+}
+
+.error{
+    color: red;
+}
+
+.btn-dark{
+    box-shadow: 0 0 10px rgb(0 0 0 / 45%);
+}

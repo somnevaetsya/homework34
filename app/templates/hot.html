@@ -1,0 +1,16 @@
+{% extends  'incl/base_with_pagination.html' %}
+{%  load static %}
+{% block content %}
+    <div class="row">
+        <div class="col-4">
+            <h2 class="mx-5">Hot questions</h2>
+        </div>
+{#        <div class="col-9">#}
+{#            <a href="{% url "hot" %}" style="font-size: 27px">Hot questions</a>#}
+{#        </div>#}
+    </div>
+    {% for one_post in post %}
+        {% include 'incl/one_que.html' %}
+    {% endfor %}
+
+{% endblock %}

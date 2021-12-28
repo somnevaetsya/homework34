@@ -1,0 +1,70 @@
+{% extends  'incl/base.html' %}
+{% load static %}
+{% block content %}
+    {% load bootstrap4 %}
+{% load crispy_forms_tags %}
+
+    <div class="row textb">
+        <div class="col-3">
+            <h2 class="mx-4">Settings:</h2>
+        </div>
+        <div class="col-9 ">
+            <h2>NickName</h2>
+        </div>
+
+    </div>
+    <form method="post">
+    {% csrf_token%}
+    <div class="row my-5">
+        <div class="col-3">
+            <label for="login_set" class = "mx-4">Nickname</label>
+        </div>
+        <div class="col-6">
+            {{ form.username|as_crispy_field }}
+        </div>
+    </div>
+    <div class="row my-5">
+        <div class="col-3">
+            <label for="email_set" class = "mx-4">Email</label>
+        </div>
+        <div class="col-6">
+            {{ form.email|as_crispy_field }}
+        </div>
+    </div>
+    <div class="row my-5">
+        <div class="col-3">
+            <label for="nickname_set" class = "mx-4">Password</label>
+        </div>
+        <div class="col-6">
+            {{ form.password|as_crispy_field }}
+        </div>
+    </div>
+        <div class="row my-5">
+        <div class="col-3">
+            <label for="nickname_set" class = "mx-4">Password repeat</label>
+        </div>
+        <div class="col-6">
+            {{ form.password_repeat|as_crispy_field }}
+        </div>
+    </div>
+    <div class="row my-5">
+        <div class="col-3">
+            <label class = "mx-4">Upload avatar</label>
+        </div>
+        <div class="col-6">
+            <div class="row-4 ">
+                <img class="avatar" src="{%  static "img/cat_s_papirosoy.jpg" %}" alt="">
+            </div>
+            <div class="row-4  text-center my-3">
+                <input type="file" class="form-control" id="rep_avatar" />
+            </div>
+            <div class="row-4  my-3">
+                <button type="accept" class="btn btn-dark my-3">Accept</button>
+            </div>
+        </div>
+
+    </div>
+    </form>
+{% endblock content %}
+
+

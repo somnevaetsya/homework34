@@ -1,0 +1,29 @@
+{% load static %}
+{% block content %}
+    <div class="row one_que justify-content-center">
+    <div class="col-3 text-center">
+        <img class="avatar" src="{%  static "img/cat_s_papirosoy.jpg" %}" alt="">
+    </div>
+    <div class="col-9 ">
+        <h3 class = "my-3"> {{ que.title}}</h3>
+        {{ que.text}}
+    </div>
+    <div class="row p-0">
+        <div class="col-3 text-center">
+            <div class="row-1 my-3">
+                Rate: {{ que.like_to_que}}
+            </div>
+            <div class="row-1 my-3 text-center">
+                <div class="btn btn-outline-dark">Like</div>
+            </div>
+        </div>
+
+        <div class="col-3 my-3">
+            <p class="mt-5">
+                Tags:
+                <a href={% url "tag" que.id %}> {{ que.tag}}</a>
+                </p>
+        </div>
+    </div>
+    </div>
+{% endblock content %}

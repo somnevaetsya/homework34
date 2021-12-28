@@ -1,0 +1,30 @@
+{% extends  'incl/base_with_pagination.html' %}
+{% load static %}
+{% block content %}
+    {% load bootstrap4 %}
+        {% load crispy_forms_tags %}
+
+    {% include 'incl/main_que.html' %}
+    {% for answer in post %}
+        {% include 'incl/answer.html' %}
+    {% endfor %}
+
+    {% if request.user.is_authenticated %}
+        <form method="post">
+        {% csrf_token%}
+            <div class="form-group mx-5 my-3">
+        Answer
+    </div>
+        <div class="form-group mx-5 my-3">
+        {{ form.answer|as_crispy_field }}
+    </div>
+    <button type="submit" class="btn btn-dark mx-5 my-3">Answer</button>
+        </form>
+
+    {% else %}
+        <div class="btn btn-dark mx-5">
+            <a style="text-decoration: none; color: white" href="{% url 'login_' %}">LogIn to answer question</a>
+        </div>
+    {% endif %}
+{% endblock content %}
+

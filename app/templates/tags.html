@@ -1,0 +1,9 @@
+{% extends  'incl/base_with_pagination.html' %}
+{% load static %}
+{% block content %}
+
+    <h2 class="mx-5">Tag: {{ post|get_item:'tag'}}</h2>
+   {% for one_post in post %}
+        {% include 'incl/one_que.html' %}
+    {% endfor %}
+{% endblock content %}

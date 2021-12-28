@@ -1,0 +1,45 @@
+{% extends  'incl/base.html' %}
+
+{% block content %}
+    {% load bootstrap4 %}
+    {% load crispy_forms_tags %}
+
+<h2 class="mx-4">New Question</h2>
+<form method="post">
+{% csrf_token%}
+    <div class="row my-5">
+        <div class="col-3">
+            <label for="email_set" class = "mx-4">Title</label>
+        </div>
+        <div class="col-6">
+           {{ form.title|as_crispy_field }}
+        </div>
+    </div>
+    <div class="row my-5">
+        <div class="col-3">
+            <label for="email_set" class = "mx-4">Text</label>
+        </div>
+        <div class="col-6">
+           {{ form.text|as_crispy_field }}
+        </div>
+    </div>
+    <div class="row my-5">
+        <div class="col-3">
+            <label for="email_set" class = "mx-4">Tag</label>
+        </div>
+        <div class="col-6">
+           {{ form.tag|as_crispy_field }}
+        </div>
+    </div>
+    <div class="row my-5">
+        <div class="col-3">
+        </div>
+        <div class="col-6">
+           <button type="submit" class="btn btn-dark my-3">Ask!</button>
+        </div>
+    </div>
+
+</form>
+
+{% endblock content %}
+

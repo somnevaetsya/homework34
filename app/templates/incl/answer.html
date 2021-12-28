@@ -1,0 +1,28 @@
+{% load static %}
+{% block content %}
+    <div id="{{ answer.id }}" class="row questions justify-content-center">
+    <div class="col-3 text-center">
+        <img class="avatar" src="{%  static "img/cat_s_papirosoy.jpg" %}" alt="">
+    </div>
+    <div  class="col-9">
+        {{ answer.text_ans }}
+    </div>
+    <div class="col text-center">
+        <div class="row-1 my-3">
+            Rate: {{ answer.like_to_ans }}
+        </div>
+        <div class="row-1 my-3 text-center">
+            <div class="btn btn-outline-dark">Like</div>
+        </div>
+    </div>
+    <div class="col-9 my-3">
+        <div class="form-check mt-5">
+            <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
+            <label class="form-check-label" for="flexCheckChecked">
+                Correct answer!
+            </label>
+        </div>
+    </div>
+    </div>
+
+{% endblock content %}
