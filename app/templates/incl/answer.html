@@ -1,28 +1,47 @@
 {% load static %}
 {% block content %}
     <div id="{{ answer.id }}" class="row questions justify-content-center">
-    <div class="col-3 text-center">
-        <img class="avatar" src="{%  static "img/cat_s_papirosoy.jpg" %}" alt="">
-    </div>
-    <div  class="col-9">
-        {{ answer.text_ans }}
-    </div>
-    <div class="col text-center">
-        <div class="row-1 my-3">
-            Rate: {{ answer.like_to_ans }}
+        <div class="col-3 text-center">
+            <img class="avatar" src="{% static "img/cat_s_papirosoy.jpg" %}" alt="">
         </div>
-        <div class="row-1 my-3 text-center">
-            <div class="btn btn-outline-dark">Like</div>
+        <div class="col-9">
+            {{ answer.text_ans }}
+        </div>
+        <div class="col text-center">
+            <div class="row-1 my-3">
+                Rate: {{ answer.rating }}
+            </div>
+            {% if request.user.is_authenticated %}
+            <div class="row-1 my-3 text-center">
+                <div class="btn btn-outline-dark ">Like</div>
+            </div>
+            <div class="row-1 my-3 text-center" >
+                <div class="btn btn-outline-dark ">Dislike</div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-9 my-3">
+            {% if request.user.profile == que.author %}
+                <div class="form-check mt-5">
+                {% if answer.is_correct %}
+                    <input class="form-check-input correct" type="checkbox" value="" id="flexCheckChecked" checked data-id="{{ answer.id }} ">
+                    <label class="form-check-label" for="flexCheckChecked">
+                        Correct answer!
+                    </label>
+                {% else %}
+                    <input class="form-check-input correct" type="checkbox" value="" id="flexCheckChecked" data-id="{{ answer.id }}">
+                    <label class="form-check-label" for="flexCheckChecked">
+                        Correct answer!
+                    </label>
+                {% endif %}
+                </div>
+            {% elif answer.is_correct %}
+                <div class="mt-5" >
+                    <p style="color: #20c997">
+                        This answer was marked as correct.
+                    </p>
+                </div>
+            {% endif %}
         </div>
     </div>
-    <div class="col-9 my-3">
-        <div class="form-check mt-5">
-            <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
-            <label class="form-check-label" for="flexCheckChecked">
-                Correct answer!
-            </label>
-        </div>
-    </div>
-    </div>
-
 {% endblock content %}

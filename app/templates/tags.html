@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 
-    <h2 class="mx-5">Tag: {{ post|get_item:'tag'}}</h2>
+    <h2 class="mx-5">Tag: {{ title }}</h2>
    {% for one_post in post %}
         {% include 'incl/one_que.html' %}
     {% endfor %}

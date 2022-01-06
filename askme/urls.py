@@ -17,9 +17,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import url
 from django.contrib.auth import logout
+from django.conf import settings
+from django.conf.urls.static import static
 
 from app import views
-
+from askme.settings import DEBUG
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,4 +35,11 @@ urlpatterns = [
     path('ask/', views.ask, name="ask"),
     path('settings/', views.settings, name="settings"),
     path('logout', include('django.contrib.auth.urls')),
+    path('vote/', views.vote, name="vote"),
+    path('correct_answer/', views.correct_answer, name="correct_answer"),
 ]
+
+if DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

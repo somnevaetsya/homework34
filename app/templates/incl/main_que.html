@@ -1,29 +1,44 @@
 {% load static %}
 {% block content %}
     <div class="row one_que justify-content-center">
-    <div class="col-3 text-center">
-        <img class="avatar" src="{%  static "img/cat_s_papirosoy.jpg" %}" alt="">
-    </div>
-    <div class="col-9 ">
-        <h3 class = "my-3"> {{ que.title}}</h3>
-        {{ que.text}}
-    </div>
-    <div class="row p-0">
         <div class="col-3 text-center">
-            <div class="row-1 my-3">
-                Rate: {{ que.like_to_que}}
-            </div>
-            <div class="row-1 my-3 text-center">
-                <div class="btn btn-outline-dark">Like</div>
-            </div>
+            <img class="avatar" src="{% static "img/cat_s_papirosoy.jpg" %}" alt="">
         </div>
-
-        <div class="col-3 my-3">
-            <p class="mt-5">
-                Tags:
-                <a href={% url "tag" que.id %}> {{ que.tag}}</a>
+        <div class="col-9 ">
+            <h3 class="my-3"> {{ que.title }}</h3>
+            {{ que.text_que }}
+        </div>
+        <div class="row p-0">
+            <div class="col-3 text-center">
+                <div class="row-1 my-3" id="rate">
+                    <p class="rating-{{ que.id }}">Rate: {{ que.rating }}</p>
+                </div>
+                {% if request.user.is_authenticated  %}
+                {% if not request.user.profile.like_que.all|intersection:que.like_que.all %}
+                    <div class="row-1 my-3 text-center" id="like">
+                        <div class="btn btn-outline-dark vote-up {{ que.id }}" data-id="{{ que.id }}">Like</div>
+                    </div>
+                    <div class="row-1 my-3 text-center" id="dislike">
+                        <div class="btn btn-outline-dark vote-down {{ que.id }}" data-id="{{ que.id }}">Dislike</div>
+                    </div>
+                {% else %}
+                    <div class="row-1 my-3 text-center" id="like">
+                        <div class="btn btn-outline-dark vote-up disabled" data-id="{{ que.id }}">Like</div>
+                    </div>
+                    <div class="row-1 my-3 text-center" id="dislike">
+                        <div class="btn btn-outline-dark vote-down disabled" data-id="{{ que.id }}">Dislike</div>
+                    </div>
+                {% endif %}
+            {% endif %}
+            </div>
+            <div class="col-8 my-3">
+                <p class="mt-5">
+                    Tags:
+                    {% for tag in que.tag.all %}
+                        <a href={% url "tag" tag.id %}> {{ tag }}</a>
+                    {% endfor %}
                 </p>
+            </div>
         </div>
-    </div>
     </div>
 {% endblock content %}

@@ -1,4 +1,4 @@
-{%  load static %}
+{% load static %}
 <!doctype html>
 <html lang="en" class="h-100">
 <head>
@@ -15,47 +15,50 @@
 
 <header class="flex-wrap border-bottom bg-light">
     <nav class="navbar navbar-light bg-light justify-content-between" style="height: 120px">
-                <div style="display: flex; align-items: center">
-                        <img class = "avatar" src="{% static "img/vopros.jpg" %}" alt="" style="height: 60px; width: 60px">
-                         <a class="navbar-brand mx-4" href="{% url "index" %}">AskMe</a>
-                    </div>
-            <form class="d-flex">
-                <input class="form-control me-2 search_button" type="search" placeholder="Find your question..." aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">
-                        <a style=" color: black" href="{% url "ask" %} ">Ask a question</a>
-                </button>
-            </form>
-            <div class="person_container">
-                {% if request.user.is_authenticated %}
-                    <div class="row d-flex align-items-center">
-                    <div class="col-4" >
-                        <img class = "avatar" src="{%  static "img/cat_s_papirosoy.jpg" %}" alt="" style="height: 70px; width: 70px">
+        <div style="display: flex; align-items: center">
+            <img class="avatar" src="{% static "img/vopros.jpg" %}" alt="" style="height: 60px; width: 60px">
+            <a class="navbar-brand mx-4" href="{% url "index" %}">AskMe</a>
+        </div>
+        <form class="d-flex">
+            <input class="form-control me-2 search_button" type="search" placeholder="Find your question..."
+                   aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">
+                <a style=" color: black" href="{% url "ask" %} ">Ask a question</a>
+            </button>
+        </form>
+        <div class="person_container">
+            {% if request.user.is_authenticated %}
+                <div class="row d-flex align-items-center">
+                    <div class="col-4">
+                        <img class="avatar" src="{{ request.user.profile.avatar.url }}" alt=""
+                             style="height: 70px; width: 70px">
                     </div>
                     <div class="col">
-                         <div class="row">
-                        <h5 class="mt-2">{{ request.user.username }}</h5>
-                         </div>
                         <div class="row">
-                            <p class = "person_info my-1">
+                            <h5 class="mt-2">{{ request.user.username }}</h5>
+                        </div>
+                        <div class="row">
+                            <p class="person_info my-1">
                                 <a href="{% url "settings" %}" style='text-decoration: none; color : black'>Settings</a>
                             </p>
                             <div class="row">
-                            <p class = "person_info my-1">
-                                <a href="{% url 'logout' %}?next={{request.path}}" style='text-decoration: none; color : #b02a37'>LogOut</a>
-                            </p>
+                                <p class="person_info my-1">
+                                    <a href="{% url 'logout' %}?next={{ request.path }}"
+                                       style='text-decoration: none; color : #b02a37'>LogOut</a>
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
-                {% else %}
-                    <button type="submit" class="btn btn-dark ">
-                        <a style="text-decoration: none; color: white" href="{% url 'login_' %}">LogIn</a>
-                    </button>
-                    <button type="submit" class="btn btn-dark mx-4">
-                        <a style="text-decoration: none; color: white" href="{% url "signup" %}">Create new account</a>
-                    </button>
-                {% endif %}
-            </div>
+            {% else %}
+                <button type="submit" class="btn btn-dark ">
+                    <a style="text-decoration: none; color: white" href="{% url 'login_' %}">LogIn</a>
+                </button>
+                <button type="submit" class="btn btn-dark mx-4">
+                    <a style="text-decoration: none; color: white" href="{% url "signup" %}">Create new account</a>
+                </button>
+            {% endif %}
+        </div>
     </nav>
 </header>
 
@@ -71,16 +74,16 @@
                 <h2 class="mb-3">Popular tags</h2>
                 <div class="row">
                     {% for tag in tags %}
-                         <div class="col">
-                            <a href="{%url "tag" tag.id %}" >{{ tag.tag_title }}</a>
+                        <div class="col">
+                            <a href="{% url "tag" tag.id %}">{{ tag }}</a>
                         </div>
                     {% endfor %}
                 </div>
                 <h2 class="mt-5">Best Members</h2>
                 <div class="row">
-                {% for profile in profiles %}
-                         <div class="col">
-                            <a href="{%url "index" %}" >{{ profile.person_ans.user.username }}</a>
+                    {% for profile in profiles %}
+                        <div class="col">
+                            <a href="{% url "index" %}">{{ profile.user.username }}</a>
                         </div>
                     {% endfor %}
 
@@ -90,6 +93,7 @@
         </div>
 
     </div>
+{% include 'incl/script.html' %}
 </main>
 
 <footer class="footer mt-auto py-3 bg-light ">

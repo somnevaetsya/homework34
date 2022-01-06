@@ -1,12 +1,16 @@
+import json
 import math
 
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
+from django.forms import model_to_dict
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
-from django.http import Http404
+from django.http import Http404, JsonResponse, HttpResponse
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.views.decorators.http import require_POST
+
 from app.models import Answer, LikeToAns, LikeToQue, Tag, Question, Profile
 from django.template.defaulttags import register
 from app.forms import LoginForm, SignUpForm, AnswerForm, UserForm, QuestionForm
@@ -14,19 +18,6 @@ from django.contrib.auth import logout, update_session_auth_hash
 
 
 # Create your views here.
-# Не работает вход, потому запись идет в обычном тексте,а не в хеше //done
-# Проверить, создается ли тег при создании вопроса // done
-# Реализовать нормальный выход из профиля //done
-# Реализовать переход на страницу вопроса после его создания //done
-# Реализовать continue в login //done
-# Реализовать переход на страницу с ответом после написания ответа
-# Посмотреть фильтр подсчета лайков, потому что неправильно считает 
-
-
-@register.filter
-def get_item(dictionary, key):
-    return dictionary[0][key]
-
 
 def pagination(request, listing, n):
     paginator = Paginator(listing, n)
@@ -35,76 +26,34 @@ def pagination(request, listing, n):
     return content
 
 
+@register.filter
+def intersection(queryset1,queryset2):
+    return queryset1 & queryset2
+
+
 def index(request):
-    questions = [{'title': Question.objects.new_que()[i].title,
-                  'text': Question.objects.new_que()[i].text_que,
-                  'answer': Answer.objects.count_answ(Question.objects.new_que()[i].id),
-                  'like_to_que': LikeToQue.objects.count_like_que(Question.objects.new_que()[i].id),
-                  'tag': Question.objects.get_tag(Question.objects.new_que()[i].id, 0),
-                  'id': Question.objects.new_que()[i].id}
-                 # 'url': Question.objects.get(id=i).get_absolute_url()}
-                 for i in range(0, 100)
-                 ]
+    questions = Question.objects.all()[:100]
     content = pagination(request, questions, 10)
     return render(request, "index.html", context={'post': content})
 
 
 def hot(request):
-    questions = [{'title': Question.objects.hot_que(i).title,
-                  'text': Question.objects.hot_que(i).text_que,
-                  'tag': Question.objects.get_tag(Question.objects.hot_que(i).id, 0),
-                  'answer': Answer.objects.count_answ(Question.objects.hot_que(i).id),
-                  'like_to_que': LikeToQue.objects.count_like_que(Question.objects.hot_que(i).id),
-                  'tag': Question.objects.get_tag(Question.objects.hot_que(i).id, 0),
-                  'id': Question.objects.hot_que(i).id}
-                 # 'url': Question.objects.get(id=i).get_absolute_url()}
-                 for i in range(0, Question.objects.count())
-                 ]
+    questions = Question.objects.hot_que()[:100]
     content = pagination(request, questions, 10)
     return render(request, "hot.html", context={'post': content})
 
-
-# questions = [
-#     {
-#         "title": f"Title {i}",
-#         "id": i,
-#         "text": f"This is text for {i} question.",
-#     } for i in range(20)
-# ]
-
 def tag(request, ind_que):
-    cur_tag = Question.objects.get_tag(ind_que, 0)
-    ques = Question.objects.get_que_tag(cur_tag)
-    if ques.exists():
-        questions = [{'title': Question.objects.get_que_tag(cur_tag)[i].title,
-                      'text': Question.objects.get_que_tag(cur_tag)[i].text_que,
-                      'answer': Answer.objects.count_answ(Question.objects.get_que_tag(cur_tag)[i].id),
-                      'tag': Question.objects.get_tag(Question.objects.get_que_tag(cur_tag)[i].id, 0),
-                      'like_to_que': LikeToQue.objects.count_like_que(Question.objects.get_que_tag(cur_tag)[i].id),
-                      'id': ind_que}
-                     # 'url': Question.objects.get(id=i).get_absolute_url()}
-                     for i in range(Tag.objects.count_tags(cur_tag))
-                     ]
+    questions = Question.objects.filter(tag__tag_title=Tag.objects.get(id=ind_que))
+    if questions.exists():
         content = pagination(request, questions, 5)
-        return render(request, "tags.html", {'post': content})
+        return render(request, "tags.html", {'title': Tag.objects.get(id=ind_que), 'post': content})
     else:
         raise Http404("Tag does not exist")
 
 
 def question(request, ind_que):
-    answers = [{
-        'text_ans': Answer.objects.get_answer(ind_que, i - 1),
-        'like_to_ans': LikeToAns.objects.count_like_ans(i),
-        'id': Answer.objects.get_answer(ind_que, i - 1).id,
-    }
-        # 'url': Question.objects.get(id=i).get_absolute_url()}
-        for i in range(1, Answer.objects.count_answ(ind_que) + 1)
-    ]
-    main_que = {'title': Question.objects.get(id=ind_que).title,
-                'text': Question.objects.get(id=ind_que).text_que,
-                'like_to_que': LikeToQue.objects.count_like_que(ind_que),
-                'tag': Question.objects.get_tag(ind_que, 0),
-                'id': ind_que}
+    answers = Answer.objects.filter(que_id=ind_que)
+    main_que = Question.objects.get(id=ind_que)
     content = pagination(request, answers, 5)
     if request.method == "GET":
         form = AnswerForm()
@@ -112,12 +61,10 @@ def question(request, ind_que):
         form = AnswerForm(data=request.POST)
         if form.is_valid():
             text = form.cleaned_data.get('answer')
-            ans_create = Answer(text_ans=text, person_ans=Profile.objects.get(user=request.user),
+            ans_create = Answer(text_ans=text, author=Profile.objects.get(user=request.user),
                                 que=Question.objects.get(id=ind_que))
             ans_create.save()
-            like_ans_create = LikeToAns(like_ans=ans_create, person_like_ans=Profile.objects.get(user=request.user))
-            like_ans_create.save()
-            if Answer.objects.count_answ(ind_que) < 5:
+            if Answer.objects.filter(que_id=ind_que).count() < 5:
                 return redirect('{}#{anchor}'.format(reverse("question", args=[ind_que]), anchor=ans_create.id))
             else:
                 result_page = math.ceil(Answer.objects.count_answ(ind_que) / 5)
@@ -130,7 +77,6 @@ contin = 1
 
 
 def login_(request):
-    print(request.POST)
     global contin
     if request.method == 'GET':
         form = LoginForm()
@@ -148,23 +94,22 @@ def login_(request):
 
 
 def signup(request):
-    print(request.POST)
     if request.method == 'GET':
         form = SignUpForm()
     elif request.method == "POST":
         form = SignUpForm(data=request.POST)
         if form.is_valid():
-            name = form.cleaned_data.get('username')
-            if User.objects.filter(username=name).exists():
+            if User.objects.filter(username=form.cleaned_data.get('username')).exists():
                 form.add_error(None, "User is already registered. Please, login")
             else:
-                name = form.cleaned_data.get('username')
-                raw_password = form.cleaned_data.get('password1')
-                user_create = User.objects.create_user(username=name, password=raw_password)
-                profile_create = Profile.objects.create(user=user_create)
-                profile_create.save()
-                auth.login(request, user_create)
-                return redirect(reverse('index'))
+                if form.cleaned_data.get('password1') != form.cleaned_data.get('password2'):
+                    form.add_error(None, "Passwords doesn`t match!")
+                else:
+                    user_create = User.objects.create_user(username=form.cleaned_data.get('username'), password=form.cleaned_data.get('password1'), email=form.cleaned_data.get('email'))
+                    profile_create = Profile(user=user_create)
+                    profile_create.save()
+                    auth.login(request, user_create)
+                    return redirect(reverse('index'))
     return render(request, "sign_up.html", {'form': form})
 
 
@@ -175,15 +120,18 @@ def ask(request):
     if request.method == 'POST':
         form = QuestionForm(data=request.POST)
         if form.is_valid():
-            que_title = form.cleaned_data.get('title')
-            que_text = form.cleaned_data.get('text')
-            que_tag = form.cleaned_data.get('tag')
-            que_create = Question(title=que_title, text_que=que_text, person_que=Profile.objects.get(user=request.user))
+            que_create = Question(title=form.cleaned_data.get('title'), text_que=form.cleaned_data.get('text'), author=Profile.objects.get(user=request.user))
             que_create.save()
-            tag_create = Tag.objects.create(tag_title=que_tag, rating=0)
-            tag_create.save()
-            que_create.tag.add(tag_create)
-            que_create.save()
+            tags = form.cleaned_data['tag'].split(', ')
+
+            for tag in tags:
+                t = Tag.objects.filter(tag_title=tag)
+                if t.exists():
+                    que_create.tag.add(Tag.objects.get(tag_title=tag))
+                else:
+                    new_tag = Tag(tag_title=tag)
+                    new_tag.save()
+                    que_create.tag.add(new_tag)
             return redirect(reverse('question', args=[que_create.id]))
             # return redirect(reverse('index'))
     return render(request, "ask.html", {'form': form})
@@ -192,18 +140,14 @@ def ask(request):
 @login_required()
 def settings(request):
     if request.method == 'GET':
-        form = UserForm(data={'username': request.user.username, 'email': request.user.email})
+        initial_data = model_to_dict(request.user)
+        initial_data['avatar'] = request.user.profile.avatar
+        form = UserForm(initial=initial_data)
     elif request.method == 'POST':
-        form = UserForm(data=request.POST)
+        form = UserForm(data=request.POST, instance=request.user, files=request.FILES)
         if form.is_valid():
-            name = form.cleaned_data.get('username')
-            mail = form.cleaned_data.get('email')
-            print(name)
-            to_change = User.objects.get(username__exact=name)
-            to_change.email = mail
-            to_change.set_password(form.cleaned_data.get('password_repeat'))
-            to_change.save()
-            update_session_auth_hash(request, to_change)
+            form.save()
+            redirect(reverse('settings'))
     else:
         messages.error(request, 'Please correct the error below.')
     return render(request, "settings.html", {'form': form})
@@ -211,3 +155,40 @@ def settings(request):
 # @login_required()
 # def logout_view(request):
 #     auth.logout(request)
+@login_required()
+@require_POST
+def vote(request):
+    question_id = request.POST['id']
+    type = request.POST.get('type')
+    q = Question.objects.get(id=question_id)
+    if type == 'like':
+        new_like = LikeToQue.objects.create(person_like_que=request.user.profile, like_que=q, is_like=True)
+        new_like.save()
+        q.rating += 1
+        q.save()
+    if type == 'dislike':
+        new_like = LikeToQue.objects.create(person_like_que=request.user.profile, like_que=q, is_like=False)
+        new_like.save()
+        q.rating -= 1
+        q.save()
+    response = {
+        'rating': q.rating,
+        'id':q.id
+    }
+    return JsonResponse(response)
+
+@login_required()
+@require_POST
+def correct_answer(request):
+    if request.method == 'POST':
+        answer_id = request.POST['id']
+        type = request.POST.get('type')
+        answer = Answer.objects.get(id=answer_id)
+        if type == 'correct':
+            answer.is_correct = True
+            answer.save()
+        if type == 'uncorrect':
+            answer.is_correct = False
+            answer.save()
+    return JsonResponse({})
+
